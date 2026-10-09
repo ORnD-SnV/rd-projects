@@ -1,0 +1,43 @@
+# Publishes the dashboard to GitHub Pages every time something is pushed to main.
+# One-time switch: repository Settings > Pages > Build and deployment > Source = "GitHub Actions".
+name: Deploy dashboard
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v6
+
+      # Gives every release its own offline cache name, so open browsers pick up the new version.
+      - name: Stamp the build id into the service worker
+        run: sed -i "s/__BUILD__/${GITHUB_SHA::8}/" sw.js
+
+      # Only the app itself is published. Docs, tests and anything else in the repo stay out of the site.
+      - name: Collect the site files
+        run: |
+          mkdir _site
+          cp -r index.html config.js manifest.webmanifest sw.js css js fonts icons _site/
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
