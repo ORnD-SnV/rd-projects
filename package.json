@@ -1,0 +1,13 @@
+{
+  "name": "rd-projects-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "description": "R&D project dashboard: projects, hours, costings and design files, on Google Sheets and Drive.",
+  "scripts": {
+    "serve": "python3 -m http.server 8765",
+    "test": "node tests/demo.test.js && node tests/google-mock.test.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.0"
+  }
+}
