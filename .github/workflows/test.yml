@@ -1,0 +1,22 @@
+# Runs the browser tests on pull requests and on demand. It does not block the deploy.
+name: Browser tests
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npx playwright install --with-deps chromium
+      - name: Run tests
+        run: |
+          python3 -m http.server 8765 &
+          sleep 2
+          npm test
